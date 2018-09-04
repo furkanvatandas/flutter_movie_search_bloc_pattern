@@ -1,3 +1,4 @@
+import 'package:bloc_movie/src/blocs/search_provider.dart';
 import 'package:bloc_movie/src/models/movie_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,42 +7,102 @@ import 'package:bloc_movie/src/blocs/populers_provider.dart';
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final bloc = PopulersProvider.of(context);
+    final populerBloc = PopulersProvider.of(context);
+    final searchBloc = SearchProvider.of(context);
     return Scaffold(
       backgroundColor: Color(0xff37474f),
       body: SafeArea(
-        child: ListView(
-          children: <Widget>[
-            Text(
-              "Popular Movies",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+        child: RefreshIndicator(
+          onRefresh: populerBloc.fetchPopulerMovies,
+          child: ListView(
+            children: <Widget>[
+              Card(
+                margin: EdgeInsets.all(20.0),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(hintText: "Search Something"),
+                  onChanged: searchBloc.queryAdd,
+                ),
               ),
-            ),
-            StreamBuilder(
-              stream: bloc.populerMoviesStream,
-              builder: (BuildContext context, AsyncSnapshot<List<MovieModel>> snapshot) {
-                if (!snapshot.hasData) {
+              //Searching Title
+              StreamBuilder(
+                  stream: searchBloc.queryStream,
+                  builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                    if (!snapshot.hasData || snapshot.data.isEmpty) {
+                      return Container();
+                    }
+                    return Text(
+                      "Searching: ${snapshot.data}",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }),
+              //Searching Movies
+              StreamBuilder(
+                stream: searchBloc.results,
+                builder: (BuildContext context, AsyncSnapshot<List<MovieModel>> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  } else if (snapshot.data.isEmpty) {
+                    return Container(
+                      height: 100.0,
+                      child: Center(
+                          child: Text(
+                        "Sorry No Data",
+                        style: TextStyle(
+                          color: Colors.white30,
+                          fontSize: 18.0,
+                        ),
+                      )),
+                    );
+                  }
                   return Container(
                     height: 350.0,
-                    child: Center(child: CircularProgressIndicator()),
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (context, index) {
+                          return _buildMovieItem(context, index, snapshot, populerBloc);
+                        }),
                   );
-                }
-                return Container(
-                  height: 350.0,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (context, index) {
-                        return _buildMovieItem(context, index, snapshot, bloc);
-                      }),
-                );
-              },
-            ),
-          ],
+                },
+              ),
+              Text(
+                "Popular Movies",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              //Populer Movies
+              StreamBuilder(
+                stream: populerBloc.populerMoviesStream,
+                builder: (BuildContext context, AsyncSnapshot<List<MovieModel>> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container(
+                      height: 350.0,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  return Container(
+                    height: 350.0,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (context, index) {
+                          return _buildMovieItem(context, index, snapshot, populerBloc);
+                        }),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -80,21 +141,32 @@ class Home extends StatelessWidget {
       margin: EdgeInsets.all(5.0),
       color: Colors.transparent,
       elevation: 6.0,
-      child: CachedNetworkImage(
-        width: 200.0,
-        height: 300.0,
-        imageUrl: "https://image.tmdb.org/t/p/w500${snapshot.data[index].posterPath}",
-        placeholder: Container(
-          width: 200.0,
-          height: 300.0,
-        ),
-        errorWidget: Container(
-          width: 200.0,
-          height: 300.0,
-          alignment: Alignment.center,
-          child: new Icon(Icons.error),
-        ),
-      ),
+      child: snapshot.data[index].posterPath != null
+          ? CachedNetworkImage(
+              width: 200.0,
+              height: 300.0,
+              imageUrl: "https://image.tmdb.org/t/p/w500${snapshot.data[index].posterPath}",
+              placeholder: Container(
+                width: 200.0,
+                height: 300.0,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.black54,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black54),
+                  ),
+                ),
+              ),
+              errorWidget: Container(
+                width: 200.0,
+                height: 300.0,
+                alignment: Alignment.center,
+                child: new Icon(Icons.error),
+              ),
+            )
+          : Container(
+              width: 200.0,
+              height: 300.0,
+            ),
     );
   }
 }

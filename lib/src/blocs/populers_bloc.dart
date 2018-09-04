@@ -16,8 +16,9 @@ class PopulersBloc {
   Observable<List<MovieModel>> get populerMoviesStream => _populerMoviesSubject.stream;
   Observable<MovieModel> get populerMovieDetailStream => _populerMovieDetailSubject.stream;
 
-  fetchPopulerMovies() async {
+  Future<Null> fetchPopulerMovies() async {
     populerMoviesAdd(await movieAPI.fetchPopulerMovies());
+    return null;
   }
 
   void dispose() {

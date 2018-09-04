@@ -1,4 +1,5 @@
 import 'package:bloc_movie/src/blocs/populers_provider.dart';
+import 'package:bloc_movie/src/blocs/search_provider.dart';
 import 'package:bloc_movie/src/screens/home.dart';
 import 'package:bloc_movie/src/screens/movie_detail.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +8,11 @@ class RootOfApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopulersProvider(
-      child: MaterialApp(
-        title: 'Flutter Movie',
-        onGenerateRoute: routes,
+      child: SearchProvider(
+        child: MaterialApp(
+          title: 'Flutter Movie',
+          onGenerateRoute: routes,
+        ),
       ),
     );
   }
