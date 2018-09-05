@@ -1,5 +1,6 @@
 import 'package:bloc_movie/src/blocs/search_provider.dart';
 import 'package:bloc_movie/src/models/movie_model.dart';
+import 'package:bloc_movie/src/models/tv_show_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bloc_movie/src/blocs/populers_provider.dart';
@@ -13,14 +14,18 @@ class Home extends StatelessWidget {
       backgroundColor: Color(0xff37474f),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: populerBloc.fetchPopulerMovies,
+          onRefresh: () {
+            populerBloc.fetchPopulerMovies();
+            populerBloc.fetchPopulerShows();
+          },
           child: ListView(
             children: <Widget>[
               Card(
                 margin: EdgeInsets.all(20.0),
+                elevation: 8.0,
                 child: TextField(
                   textAlign: TextAlign.center,
-                  decoration: InputDecoration(hintText: "Search Something"),
+                  decoration: InputDecoration(hintText: "Search Movie"),
                   onChanged: searchBloc.queryAdd,
                 ),
               ),
@@ -31,6 +36,7 @@ class Home extends StatelessWidget {
                     if (!snapshot.hasData || snapshot.data.isEmpty) {
                       return Container();
                     }
+
                     return Text(
                       "Searching: ${snapshot.data}",
                       textAlign: TextAlign.center,
@@ -44,7 +50,7 @@ class Home extends StatelessWidget {
               //Searching Movies
               StreamBuilder(
                 stream: searchBloc.results,
-                builder: (BuildContext context, AsyncSnapshot<List<MovieModel>> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
                   if (!snapshot.hasData) {
                     return Container();
                   } else if (snapshot.data.isEmpty) {
@@ -101,6 +107,36 @@ class Home extends StatelessWidget {
                   );
                 },
               ),
+              Text(
+                "Popular Shows",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              //Populer Shows
+              StreamBuilder(
+                stream: populerBloc.populerShowsStream,
+                builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container(
+                      height: 350.0,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  return Container(
+                    height: 350.0,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (context, index) {
+                          return _buildMovieItem(context, index, snapshot, populerBloc);
+                        }),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -109,7 +145,7 @@ class Home extends StatelessWidget {
   }
 
   Widget _buildMovieItem(
-      BuildContext context, int index, AsyncSnapshot<List<MovieModel>> snapshot, bloc) {
+      BuildContext context, int index, AsyncSnapshot<List<dynamic>> snapshot, bloc) {
     return Column(children: <Widget>[
       GestureDetector(
         onTap: () {
@@ -135,7 +171,7 @@ class Home extends StatelessWidget {
     ]);
   }
 
-  Widget _buildCacheImage(AsyncSnapshot<List<MovieModel>> snapshot, int index) {
+  Widget _buildCacheImage(AsyncSnapshot<List<dynamic>> snapshot, int index) {
     //Movie Image
     return Card(
       margin: EdgeInsets.all(5.0),
@@ -146,6 +182,7 @@ class Home extends StatelessWidget {
               width: 200.0,
               height: 300.0,
               imageUrl: "https://image.tmdb.org/t/p/w500${snapshot.data[index].posterPath}",
+              fit: BoxFit.contain,
               placeholder: Container(
                 width: 200.0,
                 height: 300.0,

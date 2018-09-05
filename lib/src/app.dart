@@ -23,6 +23,7 @@ class RootOfApp extends StatelessWidget {
         return MaterialPageRoute(builder: (BuildContext context) {
           final bloc = PopulersProvider.of(context);
           bloc.fetchPopulerMovies();
+          bloc.fetchPopulerShows();
           return Home();
         });
         break;

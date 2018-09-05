@@ -15,13 +15,7 @@ class SearchBloc {
   Observable<List<MovieModel>> get results => _results;
 
   SearchBloc() {
-    _results = queryStream
-        .distinct()
-        .debounce(const Duration(milliseconds: 250))
-        .asyncMap(movieAPI.fetchQueryMovies);
-    if (_results == null) {
-      print("wtf");
-    }
+    _results = queryStream.distinct().asyncMap(movieAPI.fetchQueryMovies);
   }
 
   void dispose() {
