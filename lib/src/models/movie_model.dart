@@ -1,18 +1,10 @@
-class MovieModel {
-  int id;
-  int voteCount;
-  num voteAverage;
-  String title;
-  String posterPath;
-  String overview;
-  String releaseDay;
+import 'package:bloc_movie/src/models/entertainment.dart';
 
+class MovieModel extends EntertainmentModel {
+  //For tvShows API ["title"]
   MovieModel.fromJson(Map<String, dynamic> parsedJson)
-      : id = parsedJson["id"],
-        voteCount = parsedJson["vote_count"],
-        voteAverage = parsedJson["vote_average"],
-        title = parsedJson["title"],
-        posterPath = parsedJson["poster_path"],
-        overview = parsedJson["overview"],
-        releaseDay = parsedJson["release_date"];
+      : title = parsedJson["title"],
+        super.fromJson(parsedJson);
+
+  String title;
 }

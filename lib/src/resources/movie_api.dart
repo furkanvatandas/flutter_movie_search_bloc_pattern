@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bloc_movie/src/models/entertainment.dart';
 import 'package:bloc_movie/src/models/movie_model.dart';
-import 'package:bloc_movie/src/models/tv_show_model.dart';
+import 'package:bloc_movie/src/models/show_model.dart';
 import 'package:http/http.dart' as http;
 
-//Your API Key
+//Your API Key !!! !!!
 const _apiKey = "c0cb6b1b4c08388f83df82589549f8bb";
 //The Movie DB Url
 final _root = "https://api.themoviedb.org/3";
@@ -16,10 +17,10 @@ final _populerShowList = "$_root/tv/popular?api_key=$_apiKey&language=en-US";
 final _queryMoviesList = "$_root/search/movie?api_key=$_apiKey&language=en-US";
 
 class MovieAPI {
-  List<MovieModel> populerMovieList = [];
-  List<TvShowModel> populerShowsList = [];
+  List<EntertainmentModel> populerMovieList = [];
+  List<EntertainmentModel> populerShowsList = [];
 
-  Future<List<MovieModel>> fetchPopulerMovies() async {
+  Future<List<EntertainmentModel>> fetchPopulerMovies() async {
     if (populerMovieList.isEmpty) {
       final http.Response response = await http.get(_populerMoviesList);
       final movies = json.decode(response.body)["results"];
@@ -29,18 +30,18 @@ class MovieAPI {
     return populerMovieList;
   }
 
-  Future<List<TvShowModel>> fetchPopulerShows() async {
+  Future<List<EntertainmentModel>> fetchPopulerShows() async {
     if (populerShowsList.isEmpty) {
       final http.Response response = await http.get(_populerShowList);
       final movies = json.decode(response.body)["results"];
-      movies.forEach((v) => populerShowsList.add(TvShowModel.fromJson(v)));
+      movies.forEach((v) => populerShowsList.add(ShowModel.fromJson(v)));
       return populerShowsList;
     }
     return populerShowsList;
   }
 
-  Future<List<MovieModel>> fetchQueryMovies(String query) async {
-    List<MovieModel> queryMovieList = [];
+  Future<List<EntertainmentModel>> fetchQueryMovies(String query) async {
+    List<EntertainmentModel> queryMovieList = [];
     if (query.isNotEmpty) {
       if (queryMovieList.isEmpty) {
         final http.Response response =

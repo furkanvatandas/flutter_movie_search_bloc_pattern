@@ -1,12 +1,12 @@
-class TvShowModel {
+abstract class EntertainmentModel {
   int id;
   String title;
   String posterPath;
   String overview;
 
-  TvShowModel.fromJson(Map<String, dynamic> parsedJson)
+  EntertainmentModel.fromJson(Map<String, dynamic> parsedJson)
       : id = parsedJson["id"],
-        title = parsedJson["name"],
+        title = parsedJson["title"],
         posterPath = parsedJson["poster_path"],
         overview = parsedJson["overview"];
 }

@@ -1,7 +1,7 @@
-import 'package:bloc_movie/src/blocs/search_provider.dart';
-import 'package:bloc_movie/src/models/movie_model.dart';
-import 'package:bloc_movie/src/models/tv_show_model.dart';
 import 'package:flutter/material.dart';
+import 'package:bloc_movie/src/blocs/search_provider.dart';
+import 'package:bloc_movie/src/models/entertainment.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:bloc_movie/src/blocs/populers_provider.dart';
 
@@ -14,10 +14,7 @@ class Home extends StatelessWidget {
       backgroundColor: Color(0xff37474f),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () {
-            populerBloc.fetchPopulerMovies();
-            populerBloc.fetchPopulerShows();
-          },
+          onRefresh: () => populerBloc.fetchPopulers(),
           child: ListView(
             children: <Widget>[
               Card(
@@ -29,6 +26,7 @@ class Home extends StatelessWidget {
                   onChanged: searchBloc.queryAdd,
                 ),
               ),
+
               //Searching Title
               StreamBuilder(
                   stream: searchBloc.queryStream,
@@ -47,10 +45,13 @@ class Home extends StatelessWidget {
                       ),
                     );
                   }),
+              SizedBox(
+                height: 20.0,
+              ),
               //Searching Movies
               StreamBuilder(
                 stream: searchBloc.results,
-                builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<EntertainmentModel>> snapshot) {
                   if (!snapshot.hasData) {
                     return Container();
                   } else if (snapshot.data.isEmpty) {
@@ -89,7 +90,7 @@ class Home extends StatelessWidget {
               //Populer Movies
               StreamBuilder(
                 stream: populerBloc.populerMoviesStream,
-                builder: (BuildContext context, AsyncSnapshot<List<MovieModel>> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<EntertainmentModel>> snapshot) {
                   if (!snapshot.hasData) {
                     return Container(
                       height: 350.0,
@@ -107,6 +108,9 @@ class Home extends StatelessWidget {
                   );
                 },
               ),
+              SizedBox(
+                height: 40.0,
+              ),
               Text(
                 "Popular Shows",
                 textAlign: TextAlign.center,
@@ -116,10 +120,13 @@ class Home extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(
+                height: 20.0,
+              ),
               //Populer Shows
               StreamBuilder(
                 stream: populerBloc.populerShowsStream,
-                builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot<List<EntertainmentModel>> snapshot) {
                   if (!snapshot.hasData) {
                     return Container(
                       height: 350.0,
@@ -144,18 +151,15 @@ class Home extends StatelessWidget {
     );
   }
 
-  Widget _buildMovieItem(
-      BuildContext context, int index, AsyncSnapshot<List<dynamic>> snapshot, bloc) {
+  Widget _buildMovieItem(BuildContext context, int index,
+      AsyncSnapshot<List<EntertainmentModel>> snapshot, PopulersBloc bloc) {
     return Column(children: <Widget>[
       GestureDetector(
         onTap: () {
-          bloc.populerMovieDetailAdd(snapshot.data[index]);
+          bloc.detailAdd(snapshot.data[index]);
           Navigator.pushNamed(context, "/movieDetail");
         },
-        child: Hero(
-          tag: snapshot.data[index].id,
-          child: _buildCacheImage(snapshot, index),
-        ),
+        child: _buildCacheImage(snapshot, index),
       ),
       //Movie Title
       Container(
@@ -171,7 +175,7 @@ class Home extends StatelessWidget {
     ]);
   }
 
-  Widget _buildCacheImage(AsyncSnapshot<List<dynamic>> snapshot, int index) {
+  Widget _buildCacheImage(AsyncSnapshot<List<EntertainmentModel>> snapshot, int index) {
     //Movie Image
     return Card(
       margin: EdgeInsets.all(5.0),
