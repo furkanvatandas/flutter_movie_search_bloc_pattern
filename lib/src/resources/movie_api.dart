@@ -6,7 +6,7 @@ import 'package:bloc_movie/src/models/show_model.dart';
 import 'package:http/http.dart' as http;
 
 //Your API Key !!! !!!
-const _apiKey = "c0cb6b1b4c08388f83df82589549f8bb";
+const _apiKey = "";
 //The Movie DB Url
 final _root = "https://api.themoviedb.org/3";
 //Populer Movies URL
