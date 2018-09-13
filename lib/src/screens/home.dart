@@ -22,7 +22,11 @@ class Home extends StatelessWidget {
                 elevation: 8.0,
                 child: TextField(
                   textAlign: TextAlign.center,
-                  decoration: InputDecoration(hintText: "Search Movie"),
+                  decoration: InputDecoration(
+                    hintText: "Search Movie",
+                    border: InputBorder.none,
+                    //focusedBorder: InputBorder.none,
+                  ),
                   onChanged: searchBloc.queryAdd,
                 ),
               ),
@@ -164,6 +168,8 @@ class Home extends StatelessWidget {
       //Movie Title
       Container(
         width: 200.0,
+        height: 30.0,
+        alignment: Alignment.center,
         child: Text(
           snapshot.data[index].title,
           textAlign: TextAlign.center,
@@ -180,7 +186,7 @@ class Home extends StatelessWidget {
     return Card(
       margin: EdgeInsets.all(5.0),
       color: Colors.transparent,
-      elevation: 6.0,
+      elevation: 4.0,
       child: snapshot.data[index].posterPath != null
           ? CachedNetworkImage(
               width: 200.0,
@@ -198,7 +204,6 @@ class Home extends StatelessWidget {
                 ),
               ),
               errorWidget: Container(
-                width: 200.0,
                 height: 300.0,
                 alignment: Alignment.center,
                 child: new Icon(Icons.error),
@@ -207,6 +212,9 @@ class Home extends StatelessWidget {
           : Container(
               width: 200.0,
               height: 300.0,
+              child: Center(
+                child: new Icon(Icons.error),
+              ),
             ),
     );
   }
